@@ -236,7 +236,7 @@ class _GetBarangState extends State<GetBarang> {
 
 // Fungsi untuk mengedit barang
   Future<void> _editBarang(Barang barang) async {
-    final result = await showDialog<Barang>(
+    await showDialog<Barang>(
       context: context,
       builder: (BuildContext context) {
         final namaBarangController =
