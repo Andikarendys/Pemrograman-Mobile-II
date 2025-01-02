@@ -338,115 +338,132 @@ class _GetBarangState extends State<GetBarang> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Barang'),
+        title: const Center(child: Text('Daftar Sayur')),
         elevation: 2,
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF3E7B27),
         foregroundColor: Color.fromARGB(255, 239, 227, 194)
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListView.builder(
-                itemCount: barangList.length,
-                itemBuilder: (context, index) {
-                  final barang = barangList[index];
-                  return Card(
-                    elevation: 2,
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      leading: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade100,
-                          borderRadius: BorderRadius.circular(8),
+          : Container(
+            color: Color(0xFFa7c957),
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView.builder(
+                  itemCount: barangList.length,
+                  itemBuilder: (context, index) {
+                    final barang = barangList[index];
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 2,
+                      margin:
+                          const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                      child: ListTile(
+                        tileColor: Color(0xFFEFE3C2),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8
                         ),
-                        child:
-                            Icon(Icons.inventory, color: Colors.blue.shade700),
-                      ),
-                      title: Text(
-                        barang.namabarang,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 4),
-                          Text(
-                            'Kode: ${barang.kodebarang}',
-                            style: TextStyle(color: Colors.grey.shade600),
+                        leading: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          Text(
-                            'Stok: ${barang.stokbarang}',
-                            style: TextStyle(color: Colors.grey.shade600),
+                          child: Image(
+                              image: AssetImage('lib/images/box_veggie.png'),
+                              width: 50,
+                              height: 50,
+                          )
+                        ),
+                        title: Text(
+                          barang.namabarang,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Rp ${barang.hargabarang.toString()}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.blue,
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 4),
+                            Text(
+                              'Kode: ${barang.kodebarang}',
+                              style: TextStyle(color: Colors.grey.shade600),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.orange),
-                            onPressed: () => _editBarang(barang),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Konfirmasi'),
-                                  content: const Text(
-                                      'Yakin ingin menghapus barang ini?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Batal'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        _deleteBarang(barang.id);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
+                            Text(
+                              'Stok: ${barang.stokbarang}',
+                              style: TextStyle(color: Colors.grey.shade600),
+                            ),
+                          ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Rp ${barang.hargabarang.toString()}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.orange),
+                              onPressed: () => _editBarang(barang),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Konfirmasi'),
+                                    content: const Text(
+                                        'Yakin ingin menghapus barang ini?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Batal'),
                                       ),
-                                      child: const Text('Hapus'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          _deleteBarang(barang.id);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          foregroundColor: Colors.white,
+                                        ),
+                                        child: const Text('Hapus'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-      floatingActionButton: FloatingActionButton.extended(
+          ),
+      floatingActionButton: FloatingActionButton(
         onPressed: _addBarang,
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Barang'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF3E7B27),
+        foregroundColor: Color(0xFFEFE3C2),
+        child: Icon(Icons.add),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
       ),
     );
   }

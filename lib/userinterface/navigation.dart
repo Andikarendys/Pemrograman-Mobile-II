@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/userinterface/getbarang.dart';
 import 'package:frontend/userinterface/home.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 class navigasi extends StatefulWidget {
   const navigasi({super.key});
@@ -28,10 +29,10 @@ class _navigasiState extends State<navigasi> {
           PersistentTabConfig(
             screen: GetBarang(),
             item: ItemConfig(
-              inactiveIcon: Icon(Icons.shelves, color: Color.fromARGB(255, 133, 169, 71)),
-              icon: Icon(Icons.shelves),
+              inactiveIcon: Icon(SolarIconsBold.cart_4, color: Color.fromARGB(255, 133, 169, 71)),
+              icon: Icon(SolarIconsBold.cart_4),
               activeForegroundColor:Color.fromARGB(255, 18, 53, 36),
-              title: "Beranda",
+              title: "Sayur",
             ),
           ),
           PersistentTabConfig(

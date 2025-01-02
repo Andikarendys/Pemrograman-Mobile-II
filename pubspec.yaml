@@ -39,6 +39,7 @@ dependencies:
   image_picker: ^1.1.2
   image: ^4.5.2
   persistent_bottom_nav_bar_v2: ^5.3.0
+  solar_icons: ^0.0.5
 
 dev_dependencies:
   flutter_test:
