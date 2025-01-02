@@ -1,55 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:frontend/userinterface/getbarang.dart';
+import 'package:frontend/userinterface/home.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
-
-class Navbar extends StatefulWidget {
-  const Navbar({super.key});
-
+class navigasi extends StatefulWidget {
+  const navigasi({super.key});
 
   @override
-  State<Navbar> createState() => _NavbarState();
+  State<navigasi> createState() => _navigasiState();
 }
 
-class _NavbarState extends State<Navbar> {
-  var _currentIndex = 0;
-
+class _navigasiState extends State<navigasi> {
   @override
   Widget build(BuildContext context) {
-        return MaterialApp(
-
-      home: Scaffold(
-        bottomNavigationBar: SalomonBottomBar(
-          currentIndex: _currentIndex,
-          onTap: (i) => setState(() => _currentIndex = i),
-          items: [
-            /// Home
-            SalomonBottomBarItem(
+    return MaterialApp(
+      home: PersistentTabView(
+        tabs: [
+          PersistentTabConfig(
+            screen: Home(),
+            item: ItemConfig(
+              inactiveIcon: Icon(Icons.home_rounded, color: Color.fromARGB(255, 133, 169, 71)),
               icon: Icon(Icons.home),
-              title: Text("Home"),
-              selectedColor: Color.fromARGB(255, 18, 53, 36),
+              activeForegroundColor:Color.fromARGB(255, 18, 53, 36),
+              title: "Beranda",
             ),
-
-            /// Likes
-            SalomonBottomBarItem(
-              icon: Icon(Icons.favorite_border),
-              title: Text("Wishlist"),
-              selectedColor: Colors.pink,
+          ),
+          PersistentTabConfig(
+            screen: GetBarang(),
+            item: ItemConfig(
+              inactiveIcon: Icon(Icons.shelves, color: Color.fromARGB(255, 133, 169, 71)),
+              icon: Icon(Icons.shelves),
+              activeForegroundColor:Color.fromARGB(255, 18, 53, 36),
+              title: "Beranda",
             ),
-
-            /// Search
-            SalomonBottomBarItem(
-              icon: Icon(Icons.search),
-              title: Text("Search"),
-              selectedColor: Colors.orange,
+          ),
+          PersistentTabConfig(
+            screen: GetBarang(),
+            item: ItemConfig(
+              inactiveIcon: Icon(Icons.receipt_long_rounded, color: Color.fromARGB(255, 133, 169, 71)),
+              icon: Icon(Icons.receipt_long_rounded),
+              activeForegroundColor:Color.fromARGB(255, 18, 53, 36),
+              title: "Transaksi",
             ),
-
-            /// Profile
-            SalomonBottomBarItem(
+          ),
+          PersistentTabConfig(
+            screen: GetBarang(),
+            item: ItemConfig(
+              inactiveIcon: Icon(Icons.person, color: Color.fromARGB(255, 133, 169, 71)),
               icon: Icon(Icons.person),
-              title: Text("Profile"),
-              selectedColor: Colors.teal,
+              activeForegroundColor:Color.fromARGB(255, 18, 53, 36),
+              title: "Pelanggan",
             ),
-          ],
+          ),
+        ],
+        navBarBuilder: (navBarConfig) => Style1BottomNavBar(
+          navBarConfig: navBarConfig,
         ),
       ),
     );

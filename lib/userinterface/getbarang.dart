@@ -306,7 +306,7 @@ class _GetBarangState extends State<GetBarang> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
+                foregroundColor: Colors.green,
               ),
               child: const Text('Simpan'),
             ),
@@ -341,7 +341,7 @@ class _GetBarangState extends State<GetBarang> {
         title: const Text('Daftar Barang'),
         elevation: 2,
         backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        foregroundColor: Color.fromARGB(255, 239, 227, 194)
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

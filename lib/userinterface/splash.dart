@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/userinterface/getbarang.dart';
 import 'package:frontend/userinterface/home.dart';
+import 'package:frontend/userinterface/navigation.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -16,7 +17,7 @@ class _SplashState extends State<Splash> {
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Home()), // Replace with your main screen
+        MaterialPageRoute(builder: (context) => const navigasi()), // Replace with your main screen
       );
     });
   }
