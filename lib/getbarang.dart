@@ -46,7 +46,7 @@ class _GetBarangState extends State<GetBarang> {
       setState(() {
         _isLoading = false;
       });
-      _showCustomSnackBar('Error: ${e.toString()}', isError: true);
+      _showCustomSnackBar('Error: ${e.toString()}', isError: !true);
     }
   }
 
@@ -91,59 +91,114 @@ class _GetBarangState extends State<GetBarang> {
         return AlertDialog(
           title: const Text('Tambah Barang',
               style: TextStyle(fontWeight: FontWeight.bold)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildTextField(namaBarangController, 'Nama Barang', Icons.label),
-              const SizedBox(height: 10),
-              _buildTextField(kodeBarangController, 'Kode Barang', Icons.code),
-              const SizedBox(height: 10),
-              _buildTextField(
-                  hargaBarangController, 'Harga Barang', Icons.attach_money,
-                  keyboardType: TextInputType.number),
-              const SizedBox(height: 10),
-              _buildTextField(
-                  stokBarangController, 'Stok Barang', Icons.inventory,
-                  keyboardType: TextInputType.number),
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                  onPressed: () {
-                    PickImageFromGallery();
-                  },
-                  label: Text('Gambar'),
-                  icon: Icon(Icons.image))
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildTextField(
+                    namaBarangController, 'Nama Barang', Icons.label),
+                const SizedBox(height: 10),
+                _buildTextField(
+                    kodeBarangController, 'Kode Barang', Icons.code),
+                const SizedBox(height: 10),
+                _buildTextField(
+                    hargaBarangController, 'Harga Barang', Icons.attach_money,
+                    keyboardType: TextInputType.number),
+                const SizedBox(height: 10),
+                _buildTextField(
+                    stokBarangController, 'Stok Barang', Icons.inventory,
+                    keyboardType: TextInputType.number),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                    onPressed: () {
+                      PickImageFromGallery();
+                    },
+                    label: Text('Gambar'),
+                    icon: Icon(Icons.image))
+              ],
+            ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                // Hanya menutup dialog tanpa menyimpan data
+                Navigator.of(context).pop();
+                // Reset form fields jika diperlukan
+                namaBarangController.clear();
+                kodeBarangController.clear();
+                hargaBarangController.clear();
+                stokBarangController.clear();
+              },
+              child: const Text('Batal',
+                  style: TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold)),
             ),
             ElevatedButton(
               onPressed: () async {
+                if (namaBarangController.text.isEmpty ||
+                    kodeBarangController.text.isEmpty ||
+                    hargaBarangController.text.isEmpty ||
+                    stokBarangController.text.isEmpty) {
+                  _showCustomSnackBar('Semua field harus diisi!',
+                      isError: true);
+                  return;
+                }
+
                 try {
                   final response = await http.post(
-                      Uri.parse(
-                          'http://andika.mobilekelasa.my.id/barang/simpan'),
-                      body: {
-                        'namabarang': namaBarangController.text,
-                        'kodebarang': kodeBarangController.text,
-                        'hargabarang': hargaBarangController.text,
-                        'stokbarang': stokBarangController.text,
-                        'gambarbarang': 'default.jpg'
-                      });
+                    Uri.parse('http://andika.mobilekelasa.my.id/barang/simpan'),
+                    body: {
+                      'namabarang': namaBarangController.text,
+                      'kodebarang': kodeBarangController.text,
+                      'hargabarang': hargaBarangController.text.isEmpty
+                          ? '0'
+                          : int.parse(hargaBarangController.text).toString(),
+                      'stokbarang': stokBarangController.text.isEmpty
+                          ? '0'
+                          : int.parse(stokBarangController.text).toString(),
+                      'gambarbarang': 'default.jpg',
+                    },
+                  );
 
                   if (response.statusCode == 200) {
-                    final newBarang =
-                        Barang.fromJson(jsonDecode(response.body));
-                    Navigator.pop(context, newBarang);
+                    if (response.body.isNotEmpty) {
+                      final Map<String, dynamic> jsonResponse =
+                          jsonDecode(response.body);
+
+                      // Pastikan nilai numerik diparse dengan benar
+                      jsonResponse['hargabarang'] = int.tryParse(
+                              jsonResponse['hargabarang'].toString()) ??
+                          0;
+                      jsonResponse['stokbarang'] =
+                          int.tryParse(jsonResponse['stokbarang'].toString()) ??
+                              0;
+
+                      final newBarang = Barang.fromJson(jsonResponse);
+                      Navigator.pop(context, newBarang);
+
+                      // Clear controllers setelah sukses
+                      namaBarangController.clear();
+                      kodeBarangController.clear();
+                      hargaBarangController.clear();
+                      stokBarangController.clear();
+
+                      _showCustomSnackBar('Barang berhasil ditambahkan');
+                    } else {
+                      throw Exception('Response body is empty');
+                    }
                   } else {
-                    throw Exception('Failed to add barang');
+                    throw Exception(
+                        'Failed to add barang: ${response.statusCode}');
                   }
                 } catch (e) {
+                  print('Error detail: $e');
                   _showCustomSnackBar('Error: ${e.toString()}', isError: true);
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Simpan'),
             ),
           ],
@@ -156,36 +211,108 @@ class _GetBarangState extends State<GetBarang> {
         barangList.add(result);
       });
       _showCustomSnackBar('Barang berhasil ditambahkan');
+    } else {
+      await _fetchBarang();
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Barang'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: barangList.length,
-              itemBuilder: (context, index) {
-                final barang = barangList[index];
-                return ListTile(
-                  title: Text(barang.namabarang),
-                  subtitle: Text(
-                      'Kode: ${barang.kodebarang} - Stok: ${barang.stokbarang}'),
-                  trailing: Text(
-                    'Rp ${barang.hargabarang.toString()}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                );
-              },
+  // Fungsi untuk menghapus barang
+  Future<void> _deleteBarang(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('http://andika.mobilekelasa.my.id/barang/hapus/$id'),
+      );
+
+      if (response.statusCode == 200) {
+        await _fetchBarang(); // Refresh data setelah menghapus
+        _showCustomSnackBar('Barang berhasil dihapus');
+      } else {
+        throw Exception('Failed to delete barang');
+      }
+    } catch (e) {
+      _showCustomSnackBar('Error: ${e.toString()}', isError: true);
+    }
+  }
+
+// Fungsi untuk mengedit barang
+  Future<void> _editBarang(Barang barang) async {
+    final result = await showDialog<Barang>(
+      context: context,
+      builder: (BuildContext context) {
+        final namaBarangController =
+            TextEditingController(text: barang.namabarang);
+        final kodeBarangController =
+            TextEditingController(text: barang.kodebarang);
+        final hargaBarangController =
+            TextEditingController(text: barang.hargabarang.toString());
+        final stokBarangController =
+            TextEditingController(text: barang.stokbarang.toString());
+
+        return AlertDialog(
+          title: const Text('Edit Barang',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildTextField(
+                    namaBarangController, 'Nama Barang', Icons.label),
+                const SizedBox(height: 10),
+                _buildTextField(
+                    kodeBarangController, 'Kode Barang', Icons.code),
+                const SizedBox(height: 10),
+                _buildTextField(
+                    hargaBarangController, 'Harga Barang', Icons.attach_money,
+                    keyboardType: TextInputType.number),
+                const SizedBox(height: 10),
+                _buildTextField(
+                    stokBarangController, 'Stok Barang', Icons.inventory,
+                    keyboardType: TextInputType.number),
+              ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addBarang,
-        child: const Icon(Icons.add),
-      ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Batal',
+                  style: TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final response = await http.put(
+                    Uri.parse(
+                        'http://andika.mobilekelasa.my.id/barang/ubah/${barang.id}'),
+                    body: {
+                      'namabarang': namaBarangController.text,
+                      'kodebarang': kodeBarangController.text,
+                      'hargabarang': hargaBarangController.text,
+                      'stokbarang': stokBarangController.text,
+                      'gambarbarang': barang.gambarbarang,
+                    },
+                  );
+
+                  if (response.statusCode == 200) {
+                    Navigator.pop(context);
+                    await _fetchBarang(); // Refresh data setelah edit
+                    _showCustomSnackBar('Barang berhasil diubah');
+                  } else {
+                    throw Exception('Failed to edit barang');
+                  }
+                } catch (e) {
+                  _showCustomSnackBar('Error: ${e.toString()}', isError: true);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Simpan'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -195,7 +322,7 @@ class _GetBarangState extends State<GetBarang> {
       final XFile? pickedFile = await picker.pickImage(
         source: ImageSource.gallery,
       );
-      
+
       if (pickedFile != null) {
         setState(() {
           imageFile = File(pickedFile.path);
@@ -205,5 +332,122 @@ class _GetBarangState extends State<GetBarang> {
     } catch (e) {
       _showCustomSnackBar('Error saat memilih gambar: $e', isError: true);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Daftar Barang'),
+        elevation: 2,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.builder(
+                itemCount: barangList.length,
+                itemBuilder: (context, index) {
+                  final barang = barangList[index];
+                  return Card(
+                    elevation: 2,
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      leading: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child:
+                            Icon(Icons.inventory, color: Colors.blue.shade700),
+                      ),
+                      title: Text(
+                        barang.namabarang,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            'Kode: ${barang.kodebarang}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          Text(
+                            'Stok: ${barang.stokbarang}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Rp ${barang.hargabarang.toString()}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.orange),
+                            onPressed: () => _editBarang(barang),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Konfirmasi'),
+                                  content: const Text(
+                                      'Yakin ingin menghapus barang ini?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Batal'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        _deleteBarang(barang.id);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      child: const Text('Hapus'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _addBarang,
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Barang'),
+        backgroundColor: Colors.blue,
+      ),
+    );
   }
 }

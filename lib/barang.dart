@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final barang = barangFromJson(jsonString);
-
 import 'dart:convert';
 
 List<Barang> barangFromJson(String str) => List<Barang>.from(json.decode(str).map((x) => Barang.fromJson(x)));
@@ -9,14 +5,14 @@ List<Barang> barangFromJson(String str) => List<Barang>.from(json.decode(str).ma
 String barangToJson(List<Barang> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Barang {
-    int id;
-    String kodebarang;
-    String namabarang;
-    int hargabarang;
-    int stokbarang;
-    String gambarbarang;
-    DateTime createdAt;
-    DateTime updatedAt;
+    final int id;
+    final String kodebarang;
+    final String namabarang;
+    final int hargabarang;
+    final int stokbarang;
+    final String gambarbarang;
+    final DateTime createdAt;
+    final DateTime updatedAt;
 
     Barang({
         required this.id,
@@ -30,14 +26,18 @@ class Barang {
     });
 
     factory Barang.fromJson(Map<String, dynamic> json) => Barang(
-        id: json["id"],
-        kodebarang: json["kodebarang"],
-        namabarang: json["namabarang"],
-        hargabarang: json["hargabarang"],
-        stokbarang: json["stokbarang"],
-        gambarbarang: json["gambarbarang"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        id: json["id"] ?? 0,
+        kodebarang: json["kodebarang"] ?? '',
+        namabarang: json["namabarang"] ?? '',
+        hargabarang: int.tryParse(json["hargabarang"].toString()) ?? 0,
+        stokbarang: int.tryParse(json["stokbarang"].toString()) ?? 0,
+        gambarbarang: json["gambarbarang"] ?? 'default.jpg',
+        createdAt: json["created_at"] != null 
+            ? DateTime.parse(json["created_at"]) 
+            : DateTime.now(),
+        updatedAt: json["updated_at"] != null 
+            ? DateTime.parse(json["updated_at"]) 
+            : DateTime.now(),
     );
 
     Map<String, dynamic> toJson() => {
@@ -50,4 +50,27 @@ class Barang {
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),
     };
+
+    // Helper method untuk membuat salinan objek dengan nilai yang diperbarui
+    Barang copyWith({
+        int? id,
+        String? kodebarang,
+        String? namabarang,
+        int? hargabarang,
+        int? stokbarang,
+        String? gambarbarang,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+    }) {
+        return Barang(
+            id: id ?? this.id,
+            kodebarang: kodebarang ?? this.kodebarang,
+            namabarang: namabarang ?? this.namabarang,
+            hargabarang: hargabarang ?? this.hargabarang,
+            stokbarang: stokbarang ?? this.stokbarang,
+            gambarbarang: gambarbarang ?? this.gambarbarang,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+        );
+    }
 }
